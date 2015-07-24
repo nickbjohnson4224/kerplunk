@@ -31,7 +31,7 @@ void go_copy(const struct go_state *state, struct go_state *out);
 bool go_play(struct go_state *state, uint16_t move);
 bool go_legal(struct go_state *state, uint16_t move);
 void go_moves(struct go_state *state, uint16_t *moves, size_t *count);
-void go_moves_exact(struct go_state *state, uint16_t *moves, size_t *count);
+void go_moves_loose(struct go_state *state, uint16_t *moves, size_t *count);
 void go_print(struct go_state *state, FILE *stream);
 
 #endif//KERPLUNK_GO_H_

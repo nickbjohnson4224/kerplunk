@@ -462,7 +462,7 @@ bool go_legal(struct go_state *state, uint16_t move) {
     return true;
 }
 
-void go_moves(struct go_state *state, uint16_t *moves, size_t *count) {
+void go_moves_loose(struct go_state *state, uint16_t *moves, size_t *count) {
     const size_t size = state->size;
     assert(size <= 21);
 
@@ -481,7 +481,7 @@ void go_moves(struct go_state *state, uint16_t *moves, size_t *count) {
     *count = _count;
 }
 
-void go_moves_exact(struct go_state *state, uint16_t *moves, size_t *count) {
+void go_moves(struct go_state *state, uint16_t *moves, size_t *count) {
     const size_t size = state->size;
     assert(size <= 21);
 

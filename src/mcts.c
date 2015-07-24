@@ -15,7 +15,7 @@ void mc_run_random_playout(struct go_state *state) {
     while (!state->scored) {
         uint16_t all_moves[512];
         size_t num_moves;
-        go_moves(state, all_moves, &num_moves);
+        go_moves_loose(state, all_moves, &num_moves);
 
         uint16_t move;
         do {
@@ -29,7 +29,7 @@ void mc_run_random_playout(struct go_state *state) {
 struct mcts_tree *mcts_new(struct go_state *state) {
     size_t num_moves;
     uint16_t moves[512];
-    go_moves_exact(state, moves, &num_moves);
+    go_moves(state, moves, &num_moves);
 
     struct mcts_tree *tree = malloc(
         sizeof(struct mcts_tree) +
