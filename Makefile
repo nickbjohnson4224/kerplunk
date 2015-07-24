@@ -1,6 +1,9 @@
-SOURCES := src/main.c src/go.c src/sgf.c src/mcts.c
-HEADERS := src/go.h src/sgf.h src/mcts.h
-OBJECTS := build/main.o build/go.o build/sgf.o build/mcts.o
+BUILDDIR := build
+SRCDIR := src
+
+SOURCES := $(SRCDIR)/main.c $(SRCDIR)/go.c $(SRCDIR)/sgf.c $(SRCDIR)/mcts.c
+HEADERS := $(SRCDIR)/go.h $(SRCDIR)/sgf.h $(SRCDIR)/mcts.h
+OBJECTS := $(BUILDDIR)/main.o $(BUILDDIR)/go.o $(BUILDDIR)/sgf.o $(BUILDDIR)/mcts.o
 
 CFLAGS := -std=c99 -pedantic
 CFLAGS += -Wall -Wextra -Wno-unused-parameter -Werror
@@ -13,20 +16,24 @@ LIBS := -lm -lsodium
 
 all: kerplunk
 
+$(BUILDDIR):
+	mkdir -p $@
+
 kerplunk: $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $(OBJECTS) $(LIBS)
 
-build/go.o: src/go.c src/go.h
+$(BUILDDIR)/go.o: src/go.c src/go.h $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-build/mcts.o: src/mcts.c src/mcts.h src/go.h
+$(BUILDDIR)/mcts.o: src/mcts.c src/mcts.h src/go.h $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-build/sgf.o: src/sgf.c src/sgf.h src/go.h
+$(BUILDDIR)/sgf.o: src/sgf.c src/sgf.h src/go.h $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-build/main.o: src/main.c src/mcts.h src/go.h
+$(BUILDDIR)/main.o: src/main.c src/mcts.h src/go.h $(BUILDDIR)
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 clean:
 	rm $(OBJECTS)
+	rmdir $(BUILDDIR)
