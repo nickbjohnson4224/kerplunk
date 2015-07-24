@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <math.h>
 
 #include "sgf.h"
 #include "go.h"
@@ -129,6 +130,9 @@ bool sgf_load(struct sgf_record *record, FILE *stream, bool verbose) {
     int c;
 
     c = _fgetc_skip_whitespace(stream);
+    if (c == EOF) {
+        return false;
+    }
     if (c != '(') {
         PARSE_ERROR("SGF record doesn't begin with a '('\n");
     }
@@ -272,9 +276,9 @@ bool sgf_load(struct sgf_record *record, FILE *stream, bool verbose) {
                     PARSE_ERROR("exceeded pre-declared handicap buffer\n");
                 }
                 
-                uint8_t row = propval[0] - 'a' + 1;
-                uint8_t col = propval[1] - 'a' + 1;
-                uint16_t pos = (row << 8) | col;
+                const uint8_t col = propval[0] - 'a' + 1;
+                const uint8_t row = propval[1] - 'a' + 1;
+                const uint16_t pos = (row << 8) | col;
 
                 handicaps[num_handicaps] = pos;
                 num_handicaps++;
@@ -303,9 +307,21 @@ bool sgf_load(struct sgf_record *record, FILE *stream, bool verbose) {
         #undef IF_PROP
     }
 
-    // TODO parse result score 
+    // parse result score
+    
 
-    // TODO sanity check on fields
+    // sanity checks on fields
+
+    if (record->komi != floor(record->komi) && record->komi != floor(record->komi) + 0.5f) {
+        record->komi = floor(record->komi) + 0.5f;
+    }
+    
+    if (!record->ruleset || (strcmp(record->ruleset, "Japanese") &&
+        strcmp(record->ruleset, "Chinese") && strcmp(record->ruleset, "AGA") &&
+        strcmp(record->ruleset, "GOE") && strcmp(record->ruleset, "NZ"))) {
+
+        PARSE_ERROR("unknown or missing ruleset\n");
+    }
 
     if (c == ')') {
         // no moves
@@ -494,6 +510,8 @@ void sgf_dump(struct sgf_record *record, FILE *stream) {
             fprintf(stream, "[%c%c]", 'a' + col - 1, 'a' + row - 1);
         }
     }
+
+    fprintf(stream, "KM[%0.2f]", record->komi);
 
     // scoring/results
     if (record->result) {

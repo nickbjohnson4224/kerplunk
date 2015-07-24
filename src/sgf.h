@@ -42,11 +42,4 @@ bool sgf_load(struct sgf_record *record, FILE *stream, bool verbose);
 void sgf_dump(struct sgf_record *record, FILE *stream);
 void sgf_free(struct sgf_record *record);
 
-// replay existing SGF game record
-bool sgf_replay_start(struct sgf_record *record, struct go_state *state, size_t *move);
-bool sgf_replay_next(struct sgf_record *record, struct go_state *state, size_t *move);
-
-// build new SGF game record
-// TODO
-
 #endif//KERPLUNK_SGF_H_

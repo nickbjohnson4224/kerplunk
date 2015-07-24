@@ -21,16 +21,17 @@ struct go_state {
     unsigned scored : 1;
     unsigned        : 4;
     int16_t score;
+    uint16_t bcaps; // black stones captured, not stones captured _by_ black
+    uint16_t wcaps; // ditto
 };
 
 bool go_init(void);
-void go_setup(struct go_state *state, size_t size, size_t handicap, uint16_t *ha_pos);
+void go_setup(struct go_state *state, size_t size, size_t hcap, uint16_t *hcaps);
 void go_copy(const struct go_state *state, struct go_state *out);
 bool go_play(struct go_state *state, uint16_t move);
 bool go_legal(struct go_state *state, uint16_t move);
 void go_moves(struct go_state *state, uint16_t *moves, size_t *count);
 void go_moves_exact(struct go_state *state, uint16_t *moves, size_t *count);
 void go_print(struct go_state *state, FILE *stream);
-void go_dump_csv(struct go_state *state, FILE *stream);
 
 #endif//KERPLUNK_GO_H_

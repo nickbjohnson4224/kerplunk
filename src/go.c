@@ -27,19 +27,30 @@ bool go_init(void) {
     }
 
     // build psudorandom zobrist hash lookup table
-    const uint8_t k[32] = "";
-    const uint8_t n[32] = "";
+    const uint8_t k[32] = "kerplunk zobrist hash lookup tab";
+    const uint8_t n[32] = "00000000000000000000000000000000";
     crypto_stream_chacha20((void*) _go_pos_hash, sizeof(_go_pos_hash), n, k);
 
     return true;
 }
 
-void go_setup(struct go_state *state, size_t size, size_t handicap, uint16_t *ha_positions) {
+void go_setup(struct go_state *state, size_t size, size_t hcap, uint16_t *hcaps) {
     assert(size <= 21);
 
+    // initialize blank board
     memset(state, 0, sizeof(struct go_state));
     state->size = size;
-    state->turn = BLACK;    
+    state->turn = (hcap == 0) ? BLACK : WHITE;
+
+    for (size_t i = 0; i < hcap; i++) {
+        const uint8_t row = hcaps[i] >> 8;
+        const uint8_t col = hcaps[i] & 0xFF;
+        assert(row < 24 && col < 32);
+
+        assert(state->board[row][col] == EMPTY);
+        state->board[row][col] = BLACK;
+        state->hash ^= _go_pos_hash[row][col][0];
+    }
 }
 
 void go_copy(const struct go_state *state, struct go_state *out) {
@@ -121,14 +132,21 @@ static bool _try_capture(struct go_state *state, size_t row, size_t col, bool pr
         // remove all marked positions
         uint64_t hash_delta = 0;
         for (size_t j = 0; j < list_next; j++) {
-            uint8_t r = list[j][0];
-            uint8_t c = list[j][1];
-            
-            uint8_t old_color = state->board[r][c] & (WHITE | BLACK);
-            hash_delta ^= _go_pos_hash[r][c][old_color];
+            const uint8_t r = list[j][0];
+            const uint8_t c = list[j][1];
+
+            hash_delta ^= _go_pos_hash[r][c][color-1];
             state->board[r][c] = EMPTY;
         }
 
+        // record capture counts
+        if (color == BLACK) {
+            state->bcaps += list_next;
+        }
+        else {
+            state->wcaps += list_next;
+        }
+        
         state->hash ^= hash_delta;
     }
     else {
@@ -294,6 +312,7 @@ bool go_play(struct go_state *state, uint16_t move) {
         const uint8_t opp_color = own_color ^ (WHITE | BLACK);
         const size_t row = move >> 8;
         const size_t col = move & 0xFF;
+        assert(row < 24 && col < 32);
 
         // check if move is in range
         if (row == 0 || row > size || col == 0 || col > size) {
@@ -380,6 +399,7 @@ bool go_legal(struct go_state *state, uint16_t move) {
     const uint8_t opp_color = own_color ^ (WHITE | BLACK);
     const size_t row = move >> 8;
     const size_t col = move & 0xFF;
+    assert(row < 24 && col < 32);
 
     // check if move is in range
     if (row == 0 || row > size || col == 0 || col > size) {
@@ -541,26 +561,6 @@ void go_print(struct go_state *state, FILE *stream) {
         }
         else {
             fprintf(stream, "\n");
-        }
-    }
-}
-
-void go_dump_csv(struct go_state *state, FILE *stream) {
-    fprintf(stream, "%d,%c,%d,%d,", state->size, 
-        state->turn == BLACK ? 'B' : 'W', 
-        state->passed, state->scored);
-        
-    for (size_t r = 1; r <= state->size; r++) {
-        for (size_t c = 1; c <= state->size; c++) {
-            if (state->board[r][c] == EMPTY) {
-                fputs("E,", stream);
-            }
-            else if (state->board[r][c] == BLACK) {
-                fputs("B,", stream);
-            }
-            else {
-                fputs("W,", stream);
-            }
         }
     }
 }
