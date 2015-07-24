@@ -7,7 +7,7 @@ CFLAGS += -Wall -Wextra -Wno-unused-parameter -Werror
 CFLAGS += -O3 -fomit-frame-pointer -DNDEBUG
 CFLAGS += -fopenmp
 
-LIBS := -lsodium
+LIBS := -lm -lsodium
 
 .PHONY: clean
 

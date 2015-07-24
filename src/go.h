@@ -6,6 +6,10 @@
 #include <stddef.h>
 #include <stdio.h>
 
+#define EMPTY 0
+#define BLACK 1
+#define WHITE 2
+
 struct go_state {
     uint8_t board[24][32];
 
@@ -27,5 +31,6 @@ bool go_legal(struct go_state *state, uint16_t move);
 void go_moves(struct go_state *state, uint16_t *moves, size_t *count);
 void go_moves_exact(struct go_state *state, uint16_t *moves, size_t *count);
 void go_print(struct go_state *state, FILE *stream);
+void go_dump_csv(struct go_state *state, FILE *stream);
 
 #endif//KERPLUNK_GO_H_

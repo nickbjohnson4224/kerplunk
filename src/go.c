@@ -11,9 +11,6 @@
 
 // position flags
 
-#define EMPTY 0
-#define BLACK 1
-#define WHITE 2
 #define VISITED 4 // temporary mark for flood fills
 
 // utility functions
@@ -486,13 +483,48 @@ void go_moves_exact(struct go_state *state, uint16_t *moves, size_t *count) {
 
 void go_print(struct go_state *state, FILE *stream) {
     
+    // so beautiful...
+
+    fputs("\xe2\x95\x94", stream);
+    for (size_t c = 0; c <= state->size; c++) {
+        fputs("\xe2\x95\x90\xe2\x95\x90", stream);
+    }
+    fputs("\xe2\x95\x90\xe2\x95\x97\n", stream);
+
+    fputs("\xe2\x95\x91", stream);
+    for (size_t c = 0; c <= state->size; c++) {
+        fputs("  ", stream);
+    }
+    fputs(" \xe2\x95\x91\n", stream);
+
     for (size_t r = 1; r <= state->size; r++) {
+        fputs("\xe2\x95\x91  ", stream);
         for (size_t c = 1; c <= state->size; c++) {
-            fprintf(stream, "%c ", "-@O"[state->board[r][c]]);
+            if (state->board[r][c] == EMPTY) {
+                fputs("\xc2\xb7 ", stream);
+            }
+            else if (state->board[r][c] == BLACK) {
+                fputs("\xe2\xac\xa4 ", stream);
+            }
+            else if (state->board[r][c] == WHITE) {
+                fputs("\xe2\x97\xaf ", stream);
+            }
         }
-        fprintf(stream, "\n");
+        fputs(" \xe2\x95\x91\n", stream);
     }
     
+    fputs("\xe2\x95\x91", stream);
+    for (size_t c = 0; c <= state->size; c++) {
+        fputs("  ", stream);
+    }
+    fputs(" \xe2\x95\x91\n", stream);
+
+    fputs("\xe2\x95\x9a", stream);
+    for (size_t c = 0; c <= state->size; c++) {
+        fputs("\xe2\x95\x90\xe2\x95\x90", stream);
+    }
+    fputs("\xe2\x95\x90\xe2\x95\x9d\n", stream);
+
     if (state->scored) {
         fprintf(stream, "GAME OVER; score = %+d\n", (int) state->score);
     }
@@ -509,6 +541,26 @@ void go_print(struct go_state *state, FILE *stream) {
         }
         else {
             fprintf(stream, "\n");
+        }
+    }
+}
+
+void go_dump_csv(struct go_state *state, FILE *stream) {
+    fprintf(stream, "%d,%c,%d,%d,", state->size, 
+        state->turn == BLACK ? 'B' : 'W', 
+        state->passed, state->scored);
+        
+    for (size_t r = 1; r <= state->size; r++) {
+        for (size_t c = 1; c <= state->size; c++) {
+            if (state->board[r][c] == EMPTY) {
+                fputs("E,", stream);
+            }
+            else if (state->board[r][c] == BLACK) {
+                fputs("B,", stream);
+            }
+            else {
+                fputs("W,", stream);
+            }
         }
     }
 }
