@@ -42,6 +42,10 @@ void go_setup(struct go_state *state, size_t size, size_t hcap, uint16_t *hcaps)
     state->size = size;
     state->turn = (hcap == 0) ? BLACK : WHITE;
 
+    if (hcap) {
+        assert(hcaps != NULL);
+    }
+
     for (size_t i = 0; i < hcap; i++) {
         const uint8_t row = hcaps[i] >> 8;
         const uint8_t col = hcaps[i] & 0xFF;

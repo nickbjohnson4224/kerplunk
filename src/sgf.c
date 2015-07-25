@@ -114,7 +114,7 @@ bool sgf_load(struct sgf_record *record, FILE *stream, bool verbose) {
     #define PARSE_ERROR(...)\
     do {\
         if (verbose) {\
-            fprintf(stderr, __VA_ARGS__);\
+            fprintf(stderr, "parse error: " __VA_ARGS__);\
         }\
         sgf_free(record);\
         return false;\
@@ -242,7 +242,11 @@ bool sgf_load(struct sgf_record *record, FILE *stream, bool verbose) {
         }
 
         IF_PROP("HA") {
-            record->handicap = strtoul(propval, NULL, 10);
+            size_t handicap = strtoul(propval, NULL, 10);
+            if (record->handicaps && handicap != record->handicap) {
+                PARSE_ERROR("inconsistent handicap count\n");
+            }
+            record->handicap = handicap;
             free(propval);
         }
 
@@ -301,7 +305,12 @@ bool sgf_load(struct sgf_record *record, FILE *stream, bool verbose) {
                 }
             }
 
+            if (record->handicap && record->handicap != num_handicaps) {
+                PARSE_ERROR("inconsistent handicap count\n");
+            }
+            
             record->handicaps = handicaps;
+            record->handicap = num_handicaps;
         }
 
         #undef IF_PROP
@@ -321,6 +330,10 @@ bool sgf_load(struct sgf_record *record, FILE *stream, bool verbose) {
         strcmp(record->ruleset, "GOE") && strcmp(record->ruleset, "NZ"))) {
 
         PARSE_ERROR("unknown or missing ruleset\n");
+    }
+
+    if (record->handicap && !record->handicaps) {
+        PARSE_ERROR("handicap stone positions not defined\n");
     }
 
     if (c == ')') {
