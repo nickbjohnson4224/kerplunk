@@ -16,22 +16,24 @@ LIBS := -lm -lsodium
 
 all: kerplunk
 
-$(BUILDDIR):
-	mkdir -p $@
-
 kerplunk: $(OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $(OBJECTS) $(LIBS)
 
-$(BUILDDIR)/go.o: src/go.c src/go.h $(BUILDDIR)
+$(OBJECTS): | $(BUILDDIR)
+
+$(BUILDDIR):
+	mkdir -p $@
+
+$(BUILDDIR)/go.o: src/go.c src/go.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-$(BUILDDIR)/mcts.o: src/mcts.c src/mcts.h src/go.h $(BUILDDIR)
+$(BUILDDIR)/mcts.o: src/mcts.c src/mcts.h src/go.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-$(BUILDDIR)/sgf.o: src/sgf.c src/sgf.h src/go.h $(BUILDDIR)
+$(BUILDDIR)/sgf.o: src/sgf.c src/sgf.h src/go.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-$(BUILDDIR)/main.o: src/main.c src/mcts.h src/go.h $(BUILDDIR)
+$(BUILDDIR)/main.o: src/main.c src/mcts.h src/go.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 clean:
