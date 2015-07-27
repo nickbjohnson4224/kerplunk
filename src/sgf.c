@@ -108,7 +108,7 @@ static char *_parse_prop_value(FILE *stream) {
     return buffer;
 }
 
-bool sgf_load(struct sgf_record *record, FILE *stream, bool verbose) {
+bool sgf_load(struct game_record *record, FILE *stream, bool verbose) {
     assert(record);
 
     #define PARSE_ERROR(...)\
@@ -116,11 +116,11 @@ bool sgf_load(struct sgf_record *record, FILE *stream, bool verbose) {
         if (verbose) {\
             fprintf(stderr, "parse error: " __VA_ARGS__);\
         }\
-        sgf_free(record);\
+        game_record_free(record);\
         return false;\
     } while (0);
 
-    memset(record, 0, sizeof(struct sgf_record));
+    memset(record, 0, sizeof(struct game_record));
 
     // defaults for optional properties
     record->size = 19;
@@ -154,7 +154,7 @@ bool sgf_load(struct sgf_record *record, FILE *stream, bool verbose) {
         c = _fgetc_skip_whitespace(stream);
         if (c == EOF) {
             // EOF while parsing header
-            sgf_free(record);
+            game_record_free(record);
 
             return false;
         }
@@ -221,10 +221,10 @@ bool sgf_load(struct sgf_record *record, FILE *stream, bool verbose) {
 
         RECORD_PROP("GN", name);
         RECORD_PROP("DT", date);
-        RECORD_PROP("PB", b_name);
-        RECORD_PROP("BR", b_rank);
-        RECORD_PROP("PW", w_name);
-        RECORD_PROP("WR", w_rank);
+        RECORD_PROP("PB", black_name);
+        RECORD_PROP("BR", black_rank);
+        RECORD_PROP("PW", white_name);
+        RECORD_PROP("WR", white_rank);
         RECORD_PROP("PC", copyright);
         RECORD_PROP("RU", ruleset);
         RECORD_PROP("RE", result);
@@ -490,7 +490,7 @@ bool sgf_load(struct sgf_record *record, FILE *stream, bool verbose) {
     return true;
 }
 
-void sgf_dump(struct sgf_record *record, FILE *stream) {
+void sgf_dump(struct game_record *record, FILE *stream) {
     assert(record);
 
     #define DUMP_FIELD(prop, field)\
@@ -504,10 +504,10 @@ void sgf_dump(struct sgf_record *record, FILE *stream) {
     fprintf(stream, "(;GM[1]FF[4]SZ[%zu]", record->size);
     DUMP_FIELD("GN", name);
     DUMP_FIELD("DT", date);
-    DUMP_FIELD("PB", b_name);
-    DUMP_FIELD("BR", b_rank);
-    DUMP_FIELD("PW", w_name);
-    DUMP_FIELD("WR", w_rank);
+    DUMP_FIELD("PB", black_name);
+    DUMP_FIELD("BR", black_rank);
+    DUMP_FIELD("PW", white_name);
+    DUMP_FIELD("WR", white_rank);
     DUMP_FIELD("PC", copyright);
  
     // setup
@@ -531,7 +531,7 @@ void sgf_dump(struct sgf_record *record, FILE *stream) {
         fprintf(stream, "RE[%s]", record->result);
     }
     else {
-        float score = record->base_score + record->komi;
+        float score = record->score;
         if (score > 0) {
             fprintf(stream, "RE[B+%0.1f]", score);
         }
@@ -559,18 +559,3 @@ void sgf_dump(struct sgf_record *record, FILE *stream) {
 
     #undef DUMP_FIELD
 }
-
-void sgf_free(struct sgf_record *record) {
-    assert(record);
-
-    free(record->name);
-    free(record->date);
-    free(record->w_name);
-    free(record->b_name);
-    free(record->ruleset);
-    free(record->handicaps);
-    free(record->moves);
-}
-
-bool sgf_replay_start(struct sgf_record *record, struct go_state *state, size_t *move);
-bool sgf_replay_next(struct sgf_record *record, struct go_state *state, size_t *move);

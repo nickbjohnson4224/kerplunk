@@ -123,4 +123,10 @@ uint16_t octant_to_matrix(uint16_t oct_pos, size_t size);
 // neighborhoods
 void feat_neighborhood(struct go_state *board, uint16_t mat_pos, uint8_t *buffer, size_t count);
 
+//
+// move features
+//
+// 
+//
+
 #endif//KERPLUNK_FEAT_H_

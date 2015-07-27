@@ -1,9 +1,9 @@
 BUILDDIR := build
 SRCDIR := src
 
-SOURCES := $(SRCDIR)/main.c $(SRCDIR)/go.c $(SRCDIR)/feat.c $(SRCDIR)/sgf.c $(SRCDIR)/mcts.c
-HEADERS := $(SRCDIR)/go.h $(SRCDIR)/sgf.h $(SRCDIR)/feat.h $(SRCDIR)/mcts.h $(SRCDIR)/feat.h
-OBJECTS := $(BUILDDIR)/main.o $(BUILDDIR)/go.o $(BUILDDIR)/feat.o $(BUILDDIR)/sgf.o $(BUILDDIR)/mcts.o
+SOURCES := $(SRCDIR)/main.c $(SRCDIR)/go.c $(SRCDIR)/record.c $(SRCDIR)/feat.c $(SRCDIR)/sgf.c $(SRCDIR)/mcts.c
+HEADERS := $(SRCDIR)/go.h $(SRCDIR)/record.h $(SRCDIR)/sgf.h $(SRCDIR)/feat.h $(SRCDIR)/mcts.h
+OBJECTS := $(BUILDDIR)/main.o $(BUILDDIR)/go.o $(BUILDDIR)/record.o $(BUILDDIR)/feat.o $(BUILDDIR)/sgf.o $(BUILDDIR)/mcts.o
 
 CFLAGS := -std=c99 -pedantic
 CFLAGS += -Wall -Wextra -Werror
@@ -25,6 +25,9 @@ $(BUILDDIR):
 	mkdir -p $@
 
 $(BUILDDIR)/go.o: src/go.c src/go.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+$(BUILDDIR)/record.o: src/record.c src/record.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 $(BUILDDIR)/feat.o: src/feat.c src/feat.h src/go.h

@@ -12,6 +12,7 @@
 #include <omp.h>
 
 #include "go.h"
+#include "record.h"
 #include "feat.h"
 #include "sgf.h"
 #include "mcts.h"
@@ -43,7 +44,7 @@ int kerplunk_cat(size_t num_paths, char **paths) {
         while (!parse_error && !feof(file)) {
             record_index++;
 
-            struct sgf_record record;
+            struct game_record record;
             if (!sgf_load(&record, file, true)) {
                 parse_error = true;
                 if (!feof(file)) {
@@ -77,7 +78,7 @@ int kerplunk_cat(size_t num_paths, char **paths) {
                 sgf_dump(&record, stdout);
             }
 
-            sgf_free(&record);
+            game_record_free(&record);
         }
 
         if (file != stdin) {
@@ -109,7 +110,7 @@ int kerplunk_move_features(char *path) {
             fprintf(stderr, "%zu game records processed\n", record_index);
         }
 
-        struct sgf_record record;
+        struct game_record record;
         if (!sgf_load(&record, file, true)) {
             if (!feof(file)) {
                 fprintf(stderr, "error parsing game #%zu from %s\n", record_index, path);
