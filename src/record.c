@@ -36,7 +36,7 @@ bool replay_step(struct game_replay *replay) {
         return false;
     }
 
-    const uint16_t move = replay->record->moves[replay->move_num];
+    const go_move move = replay->record->moves[replay->move_num];
     if (!go_legal(&replay->state, move)) {
         return false;
     }

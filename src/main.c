@@ -148,7 +148,7 @@ int kerplunk_move_features(char *path) {
                 uint8_t nbhd[41];
                 feat_neighborhood(&state, move, nbhd, 41);
                 for (size_t j = 0; j < 41; j++) {
-                    if (nbhd[j] == EMPTY) {
+                    if (nbhd[j] == GO_COLOR_EMPTY) {
                         fprintf(stdout, ",E");
                     }
                     else if (nbhd[i] == state.turn) {
@@ -163,10 +163,10 @@ int kerplunk_move_features(char *path) {
 
                 for (size_t j = 0; j < num_last_moves; j++) {
                     if (last_moves[i]) {
-                        const int row1 = move >> 8;
-                        const int col1 = move & 0xFF;
-                        const int row0 = last_moves[j] >> 8;
-                        const int col0 = last_moves[j] & 0xFF;
+                        const int row1 = GO_MOVE_ROW(move);
+                        const int col1 = GO_MOVE_COL(move);
+                        const int row0 = GO_MOVE_ROW(last_moves[j]);
+                        const int col0 = GO_MOVE_COL(last_moves[j]);
 
                         fprintf(stdout, ",%d", (row1-row0)*(row1-row0)+(col1-col0)*(col1-col0));
                     }

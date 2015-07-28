@@ -105,7 +105,9 @@ void feat_neighborhood(struct go_state *state, uint16_t mat_pos, uint8_t *buffer
     const int delta[4][2] = {{-1, 1}, {-1, -1}, {1, -1}, {1, 1}}; 
 
     size_t i = 0;
-    buffer[i] = state->board[mat_pos >> 8][mat_pos & 0xFF];
+    const uint8_t row = GO_MOVE_ROW(mat_pos);
+    const uint8_t col = GO_MOVE_COL(mat_pos);
+    buffer[i] = state->board[row][col];
     i++;
 
     for (size_t r = 1; r <= max_radius; r++) {
@@ -129,7 +131,7 @@ void feat_neighborhood(struct go_state *state, uint16_t mat_pos, uint8_t *buffer
 
                 uint8_t color;
                 if ((r < 1) || (r > (int) size) || (c < 1) || (c > (int) size)) {
-                    color = EMPTY;
+                    color = GO_COLOR_EMPTY;
                 }
                 else {
                     color = state->board[r][c];

@@ -11,6 +11,9 @@
 
 // position flags
 
+#define EMPTY GO_COLOR_EMPTY
+#define BLACK GO_COLOR_BLACK
+#define WHITE GO_COLOR_WHITE
 #define VISITED 4 // temporary mark for flood fills
 
 // utility functions
@@ -34,7 +37,7 @@ bool go_init(void) {
     return true;
 }
 
-void go_setup(struct go_state *state, size_t size, size_t hcap, uint16_t *hcaps) {
+void go_setup(struct go_state *state, size_t size, size_t hcap, go_move *hcaps) {
     assert(size <= 21);
 
     // initialize blank board
@@ -47,9 +50,9 @@ void go_setup(struct go_state *state, size_t size, size_t hcap, uint16_t *hcaps)
     }
 
     for (size_t i = 0; i < hcap; i++) {
-        const uint8_t row = hcaps[i] >> 8;
-        const uint8_t col = hcaps[i] & 0xFF;
-        assert(row < 24 && col < 32);
+        const uint8_t row = GO_MOVE_ROW(hcaps[i]);
+        const uint8_t col = GO_MOVE_COL(hcaps[i]);
+        assert(row > 0 && row <= size && col > 0 && col <= size);
 
         assert(state->board[row][col] == EMPTY);
         state->board[row][col] = BLACK;
@@ -61,6 +64,16 @@ void go_copy(const struct go_state *state, struct go_state *out) {
     memcpy(out, state, sizeof(struct go_state));
 }
 
+bool go_equal(const struct go_state *state0, const struct go_state *state1) {
+    if (state0->hash != state1->hash) {
+        return false;
+    }
+    if (memcmp(state0, state1, sizeof(struct go_state))) {
+        return false;
+    }
+    return true;
+}
+
 static bool _try_capture(struct go_state *state, size_t row, size_t col, bool pretend) {
     uint8_t stack[MAX_STRINGSIZE][2];
     uint8_t list[MAX_STRINGSIZE][2];
@@ -70,7 +83,7 @@ static bool _try_capture(struct go_state *state, size_t row, size_t col, bool pr
     const size_t size = state->size;
     assert(size <= 21);
 
-    const uint8_t color = state->board[row][col];
+    const go_color color = state->board[row][col];
 
     // push initial element
     stack[0][0] = row;
@@ -312,10 +325,10 @@ bool go_play(struct go_state *state, uint16_t move) {
         }
     }    
     else {
-        const uint8_t own_color = state->turn;
-        const uint8_t opp_color = own_color ^ (WHITE | BLACK);
-        const size_t row = move >> 8;
-        const size_t col = move & 0xFF;
+        const go_color own_color = state->turn;
+        const go_color opp_color = own_color ^ (WHITE | BLACK);
+        const size_t row = GO_MOVE_ROW(move);
+        const size_t col = GO_MOVE_COL(move);
         assert(row < 24 && col < 32);
 
         // check if move is in range
@@ -332,7 +345,7 @@ bool go_play(struct go_state *state, uint16_t move) {
         state->board[row][col] = own_color;
 
         // check for neighbors and neighbor properties
-        uint8_t neighbor_colors = state->board[row-1][col]
+        go_color neighbor_colors = state->board[row-1][col]
             | state->board[row+1][col]
             | state->board[row][col-1]
             | state->board[row][col+1];
@@ -385,7 +398,7 @@ bool go_play(struct go_state *state, uint16_t move) {
     return true;
 }
 
-bool go_legal(struct go_state *state, uint16_t move) {
+bool go_legal(struct go_state *state, go_move move) {
     const size_t size = state->size;
     assert(size <= 21);
 
@@ -399,10 +412,10 @@ bool go_legal(struct go_state *state, uint16_t move) {
         return true;
     }
 
-    const uint8_t own_color = state->turn;
-    const uint8_t opp_color = own_color ^ (WHITE | BLACK);
-    const size_t row = move >> 8;
-    const size_t col = move & 0xFF;
+    const go_color own_color = state->turn;
+    const go_color opp_color = own_color ^ (WHITE | BLACK);
+    const size_t row = GO_MOVE_ROW(move);
+    const size_t col = GO_MOVE_COL(move);
     assert(row < 24 && col < 32);
 
     // check if move is in range
@@ -466,17 +479,17 @@ bool go_legal(struct go_state *state, uint16_t move) {
     return true;
 }
 
-void go_moves_loose(struct go_state *state, uint16_t *moves, size_t *count) {
+void go_moves_loose(struct go_state *state, go_move *moves, size_t *count) {
     const size_t size = state->size;
     assert(size <= 21);
 
-    moves[0] = 0; // pass is always legal
+    moves[0] = GO_MOVE_PASS; // pass is always legal
 
     size_t _count = 1;
     for (uint8_t r = 1; r <= size; r++) {
         for (uint8_t c = 1; c <= size; c++) {
             if (state->board[r][c] == EMPTY) {
-                moves[_count] = (r << 8) | c;
+                moves[_count] = GO_MOVE(r, c);
                 _count++;
             }
         }
@@ -489,12 +502,12 @@ void go_moves(struct go_state *state, uint16_t *moves, size_t *count) {
     const size_t size = state->size;
     assert(size <= 21);
 
-    moves[0] = 0; // pass is always legal
+    moves[0] = GO_MOVE_PASS; // pass is always legal
 
     size_t _count = 1;
     for (uint8_t r = 1; r <= size; r++) {
         for (uint8_t c = 1; c <= size; c++) {
-            uint16_t move = (r << 8) | c;
+            uint16_t move = GO_MOVE(r, c);
             if (state->board[r][c] == EMPTY && go_legal(state, move)) {
                 moves[_count] = move;
                 _count++;

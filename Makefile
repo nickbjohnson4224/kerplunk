@@ -5,7 +5,7 @@ SOURCES := $(SRCDIR)/main.c $(SRCDIR)/go.c $(SRCDIR)/record.c $(SRCDIR)/feat.c $
 HEADERS := $(SRCDIR)/go.h $(SRCDIR)/record.h $(SRCDIR)/sgf.h $(SRCDIR)/feat.h $(SRCDIR)/mcts.h
 OBJECTS := $(BUILDDIR)/main.o $(BUILDDIR)/go.o $(BUILDDIR)/record.o $(BUILDDIR)/feat.o $(BUILDDIR)/sgf.o $(BUILDDIR)/mcts.o
 
-CFLAGS := -std=c99 -pedantic
+CFLAGS := -std=c11
 CFLAGS += -Wall -Wextra -Werror
 CFLAGS += -O3 -fomit-frame-pointer -DNDEBUG
 CFLAGS += -fopenmp

@@ -26,7 +26,7 @@ struct game_record {
     char *ruleset;
     size_t size;
     size_t handicap;
-    uint16_t *handicaps;
+    go_move *handicaps;
     float komi;
 
     // results
@@ -35,7 +35,7 @@ struct game_record {
 
     // move sequence
     size_t num_moves;
-    uint16_t  *moves;
+    go_move *moves;
 };
 
 void game_record_free(struct game_record *record);

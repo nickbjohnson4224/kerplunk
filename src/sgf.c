@@ -349,7 +349,7 @@ bool sgf_load(struct game_record *record, FILE *stream, bool verbose) {
     size_t cap_moves = 512; // won't typically be exceeded
     uint16_t *moves = malloc(sizeof(uint16_t) * cap_moves);
 
-    uint8_t turn = (record->handicap) ? WHITE : BLACK;
+    uint8_t turn = (record->handicap) ? GO_COLOR_WHITE : GO_COLOR_BLACK;
     while (1) {
         assert(c == ';');
 
@@ -368,7 +368,7 @@ bool sgf_load(struct game_record *record, FILE *stream, bool verbose) {
                 break;
             }
             else if (c == 'B' || c == 'W') {
-                uint8_t color = (c == 'B') ? BLACK : WHITE;
+                uint8_t color = (c == 'B') ? GO_COLOR_BLACK : GO_COLOR_WHITE;
 
                 c = fgetc(stream);
                 if (isalpha(c) && isalpha(c)) {
@@ -437,7 +437,7 @@ bool sgf_load(struct game_record *record, FILE *stream, bool verbose) {
                 moves[num_moves] = move;
                 num_moves++;
 
-                turn ^= BLACK|WHITE;
+                turn ^= GO_COLOR_BLACK | GO_COLOR_WHITE;
                 continue;
             }
             else if (isalpha(c) && isupper(c)) {
@@ -541,18 +541,18 @@ void sgf_dump(struct game_record *record, FILE *stream) {
     }
 
     // move sequence
-    uint8_t color = (record->handicap > 0) ? WHITE : BLACK;
+    uint8_t color = (record->handicap > 0) ? GO_COLOR_WHITE : GO_COLOR_BLACK;
     for (size_t i = 0; i < record->num_moves; i++) {
         uint16_t move = record->moves[i];
         if (move != 0) {
             uint8_t row = move >> 8;
             uint8_t col = move & 0xFF;
-            fprintf(stream, ";%c[%c%c]", (color == BLACK) ? 'B' : 'W', 'a' + col - 1, 'a' + row - 1);
+            fprintf(stream, ";%c[%c%c]", (color == GO_COLOR_BLACK) ? 'B' : 'W', 'a' + col - 1, 'a' + row - 1);
         }
         else {
-            fprintf(stream, ";%c[]", (color == BLACK) ? 'B' : 'W');
+            fprintf(stream, ";%c[]", (color == GO_COLOR_BLACK) ? 'B' : 'W');
         }
-        color ^= BLACK | WHITE;
+        color ^= GO_COLOR_BLACK | GO_COLOR_WHITE;
     }
 
     fprintf(stream, ")\n");

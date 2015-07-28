@@ -107,7 +107,7 @@ void mcts_run_random_playout(struct mcts_tree *tree) {
 
         //double curr_wr = (double) tree->num_black_wins / tree->num_playouts;
         
-        double best_uct = (tree->state.turn == BLACK) ? -100. : 100.;
+        double best_uct = (tree->state.turn == GO_COLOR_BLACK) ? -100. : 100.;
         struct mcts_tree *best_subtree = NULL;
         for (size_t i = 0; i < tree->num_moves; i++) {
             if (!tree->subtrees[i]) {
@@ -128,12 +128,12 @@ void mcts_run_random_playout(struct mcts_tree *tree) {
             else {
                 struct mcts_tree *st = tree->subtrees[i];
 
-                double wr = (double) (st->num_black_wins + (tree->state.turn == BLACK) ? OPTIMISM : -OPTIMISM) / st->num_playouts;
+                double wr = (double) (st->num_black_wins + (tree->state.turn == GO_COLOR_BLACK) ? OPTIMISM : -OPTIMISM) / st->num_playouts;
                 double jitter = 0.001 * rand_r(&rand_state) / RAND_MAX;
                 wr += jitter;
                 double uct = wr;
 
-                if (tree->state.turn == BLACK) {
+                if (tree->state.turn == GO_COLOR_BLACK) {
                     // max node
                     if (uct > best_uct) {
                         best_uct = uct;
@@ -176,16 +176,16 @@ void mcts_run_random_playout(struct mcts_tree *tree) {
 uint16_t mcts_choose(struct mcts_tree *tree) {
     unsigned int rand_state = rand();
     
-    double best_wr = (tree->state.turn == BLACK) ? -100. : 100.;
+    double best_wr = (tree->state.turn == GO_COLOR_BLACK) ? -100. : 100.;
     uint16_t best_move = 0;
     for (size_t i = 0; i < tree->num_moves; i++) {
         if (tree->subtrees[i]) {
             struct mcts_tree *st = tree->subtrees[i];
-            double wr = (double) (st->num_black_wins - (tree->state.turn == BLACK) ? OPTIMISM : -OPTIMISM) / st->num_playouts;
+            double wr = (double) (st->num_black_wins - (tree->state.turn == GO_COLOR_BLACK) ? OPTIMISM : -OPTIMISM) / st->num_playouts;
             double jitter = 0.001 * rand_r(&rand_state) / RAND_MAX;
             wr += jitter;
 
-            if (tree->state.turn == BLACK) {
+            if (tree->state.turn == GO_COLOR_BLACK) {
                 // max
                 if (wr > best_wr) {
                     best_wr = wr;
