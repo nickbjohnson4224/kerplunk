@@ -55,26 +55,15 @@ int kerplunk_cat(size_t num_paths, char **paths) {
 
             // validate game record by replaying it
 
-            struct go_state state;
-            go_setup(&state, record.size, record.handicap, record.handicaps);
-            
-            bool valid = true;
-            for (size_t i = 0; i < record.num_moves; i++) {
-                const uint16_t move = record.moves[i];
-                if (!go_legal(&state, move)) {
-                    fprintf(stderr, "in game #%zu of %s:\n", record_index, paths[i]);
-                    go_print(&state, stderr);
-                    fprintf(stderr, "illegal move (%d, %d)\n", move >> 8, move & 0xFF);
-                    valid = false;
-                    break;
-                }
+            struct game_replay replay;
+            replay_start(&replay, &record);
+            while (replay_step(&replay));
 
-                if (!go_play(&state, move)) {
-                    assert(false);
-                }
+            if (replay.move_num != record.num_moves) {
+                fprintf(stderr, "in game #%zu of %s:\n", record_index, paths[i]);
+                go_print(&replay.state, stderr);
             }
-
-            if (valid) {
+            else {
                 sgf_dump(&record, stdout);
             }
 

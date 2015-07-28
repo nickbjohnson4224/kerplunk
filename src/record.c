@@ -45,5 +45,6 @@ bool replay_step(struct game_replay *replay) {
         assert(false); // should always be caught by the legality check
     }
 
+    replay->move_num++;
     return true;
 }
