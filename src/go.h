@@ -2,9 +2,12 @@
 #define KERPLUNK_GO_H_
 
 #include <stdbool.h>
+#include <string.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
+
+bool go_init(void);
 
 //
 // state structure
@@ -31,9 +34,8 @@ struct go_state {
     uint16_t wcaps; // ditto
 };
 
-bool go_init(void);
-void go_copy(const struct go_state *state, struct go_state *out);
-bool go_equal(const struct go_state *state0, const struct go_state *state1);
+#define go_copy(s, out) (memcpy(s, out, sizeof(struct go_state)))
+#define go_equal(s0, s1) (!memcmp(s0, s1, sizeof(struct go_state)))
 
 //
 // move representation

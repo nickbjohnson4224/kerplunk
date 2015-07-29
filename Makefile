@@ -1,9 +1,9 @@
 BUILDDIR := build
 SRCDIR := src
 
-SOURCES := $(SRCDIR)/main.c $(SRCDIR)/go.c $(SRCDIR)/record.c $(SRCDIR)/feat.c $(SRCDIR)/sgf.c $(SRCDIR)/mcts.c
-HEADERS := $(SRCDIR)/go.h $(SRCDIR)/record.h $(SRCDIR)/sgf.h $(SRCDIR)/feat.h $(SRCDIR)/mcts.h
-OBJECTS := $(BUILDDIR)/main.o $(BUILDDIR)/go.o $(BUILDDIR)/record.o $(BUILDDIR)/feat.o $(BUILDDIR)/sgf.o $(BUILDDIR)/mcts.o
+SOURCES := $(SRCDIR)/main.c $(SRCDIR)/go.c $(SRCDIR)/record.c $(SRCDIR)/gtree.c $(SRCDIR)/feat.c $(SRCDIR)/sgf.c $(SRCDIR)/mcts.c
+HEADERS := $(SRCDIR)/go.h $(SRCDIR)/record.h $(SRCDIR)/gtree.h $(SRCDIR)/sgf.h $(SRCDIR)/feat.h $(SRCDIR)/mcts.h
+OBJECTS := $(BUILDDIR)/main.o $(BUILDDIR)/go.o $(BUILDDIR)/record.o $(BUILDDIR)/gtree.o $(BUILDDIR)/feat.o $(BUILDDIR)/sgf.o $(BUILDDIR)/mcts.o
 
 CFLAGS := -std=c11
 CFLAGS += -Wall -Wextra -Werror
@@ -27,7 +27,10 @@ $(BUILDDIR):
 $(BUILDDIR)/go.o: src/go.c src/go.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-$(BUILDDIR)/record.o: src/record.c src/record.h
+$(BUILDDIR)/record.o: src/record.c src/record.h src/go.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+$(BUILDDIR)/gtree.o: src/gtree.c src/gtree.h src/go.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 $(BUILDDIR)/feat.o: src/feat.c src/feat.h src/go.h

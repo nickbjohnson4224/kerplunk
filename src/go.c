@@ -60,20 +60,6 @@ void go_setup(struct go_state *state, size_t size, size_t hcap, go_move *hcaps) 
     }
 }
 
-void go_copy(const struct go_state *state, struct go_state *out) {
-    memcpy(out, state, sizeof(struct go_state));
-}
-
-bool go_equal(const struct go_state *state0, const struct go_state *state1) {
-    if (state0->hash != state1->hash) {
-        return false;
-    }
-    if (memcmp(state0, state1, sizeof(struct go_state))) {
-        return false;
-    }
-    return true;
-}
-
 static bool _try_capture(struct go_state *state, size_t row, size_t col, bool pretend) {
     uint8_t stack[MAX_STRINGSIZE][2];
     uint8_t list[MAX_STRINGSIZE][2];
