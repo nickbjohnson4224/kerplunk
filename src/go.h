@@ -25,10 +25,9 @@ struct go_state {
     uint64_t hash;
 
     uint8_t  size; // max 21, to limit valid positions to 512
-    uint8_t  turn   : 2;
-    uint8_t  passed : 1;
-    uint8_t  scored : 1;
-    uint8_t         : 4;
+    uint8_t  turn;
+    uint8_t  passed;
+    uint8_t  scored;
     int16_t  score; // raw score before komi
     uint16_t bcaps; // black stones captured, not stones captured _by_ black
     uint16_t wcaps; // ditto
