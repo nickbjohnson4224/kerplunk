@@ -8,7 +8,7 @@
 #include "go.h"
 
 //
-// generic  game tree structure
+// generic game tree structure
 //
 
 struct gtree;

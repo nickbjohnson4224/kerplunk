@@ -1,80 +1,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include <assert.h>
 #include <stdio.h>
 
-#include "feat.h"
-#include "go.h"
+#include "../assert.h"
+#include "../go.h"
+#include "octant.h"
+#include "neighbor.h"
 
-uint16_t matrix_to_octant(uint16_t mat_pos, size_t size) {
-    assert(size <= 21);
-
-    size_t row = mat_pos >> 8;
-    size_t col = mat_pos & 0xFF;
-    assert(1 <= row && row <= size);
-    assert(1 <= row && col <= size);
-
-    size_t octant = 0;
-    
-    if (row > (size + 1) / 2) {
-        octant |= 4;
-        row = size + 1 - row;
-    }
-
-    if (col > (size + 1) / 2) {
-        octant |= 2;
-        col = size + 1 - col;
-    }
-
-    if (row > col) {
-        octant |= 1;
-        uint8_t tmp = row;
-        row = col;
-        col = tmp;
-    }
-
-    const size_t height = row;
-    const size_t diaoff = col - row;
-    assert(1 <= height && height <= (size + 1) / 2);
-    assert(1 <= height + diaoff && height + diaoff <= (size + 1) / 2);
-
-    return (octant << 8) | (height << 4) | diaoff;
-}
-
-uint16_t octant_to_matrix(uint16_t oct_pos, size_t size) {
-    assert(size <= 21);
-
-    size_t octant = OCTANT(oct_pos);
-    size_t height = HEIGHT(oct_pos);
-    size_t diaoff = DIAOFF(oct_pos);
-    assert(octant < 8);
-
-    size_t row;
-    size_t col;
-    if (octant & 1) {
-        row = height + diaoff;
-        col = height;
-    }
-    else {
-        row = height;
-        col = height + diaoff;
-    }
-
-    if (octant & 2) {
-        col = size + 1 - col;
-    }
-
-    if (octant & 4) {
-        row = size + 1 - row;
-    }
-
-    assert(1 <= row && row <= size);
-    assert(1 <= col && col <= size);
-    return (row << 8) | col;
-}
-
-void feat_neighborhood(struct go_state *state, uint16_t mat_pos, uint8_t *buffer, size_t count) {
+void feature_neighborhood(struct go_state *state, go_move pos, go_color *buffer, size_t count) {
     const size_t size = state->size;
 
     // table of radii
@@ -96,7 +30,7 @@ void feat_neighborhood(struct go_state *state, uint16_t mat_pos, uint8_t *buffer
     default: assert(false); return;
     }
 
-    const uint16_t oct_pos = matrix_to_octant(mat_pos, size);
+    const uint16_t oct_pos = octant_from_matrix(pos, size);
     const int octant = OCTANT(oct_pos);
     const int height = HEIGHT(oct_pos);
     const int offset = height + DIAOFF(oct_pos);
@@ -105,8 +39,8 @@ void feat_neighborhood(struct go_state *state, uint16_t mat_pos, uint8_t *buffer
     const int delta[4][2] = {{-1, 1}, {-1, -1}, {1, -1}, {1, 1}}; 
 
     size_t i = 0;
-    const uint8_t row = GO_MOVE_ROW(mat_pos);
-    const uint8_t col = GO_MOVE_COL(mat_pos);
+    const uint8_t row = GO_MOVE_ROW(pos);
+    const uint8_t col = GO_MOVE_COL(pos);
     buffer[i] = state->board[row][col];
     i++;
 

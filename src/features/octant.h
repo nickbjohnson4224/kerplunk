@@ -1,11 +1,9 @@
-#ifndef KERPLUNK_FEAT_H_
-#define KERPLUNK_FEAT_H_
+#ifndef KERPLUNK_FEATURES_OCTANT_H_
+#define KERPLUNK_FEATURES_OCTANT_H_
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-
-#include "go.h"
 
 // //// Octant and Matrix Coordinate Systems ////
 //
@@ -117,16 +115,7 @@
 #define HEIGHT(oct_pos) (((oct_pos) >> 4) & 0xF)
 #define DIAOFF(oct_pos) ((oct_pos) & 0xF)
 
-uint16_t matrix_to_octant(uint16_t mat_pos, size_t size);
+uint16_t octant_from_matrix(uint16_t mat_pos, size_t size);
 uint16_t octant_to_matrix(uint16_t oct_pos, size_t size);
 
-// neighborhoods
-void feat_neighborhood(struct go_state *board, uint16_t mat_pos, uint8_t *buffer, size_t count);
-
-//
-// move features
-//
-// 
-//
-
-#endif//KERPLUNK_FEAT_H_
+#endif//KERPLUNK_FEATURES_OCTANT_H_

@@ -9,11 +9,11 @@
 #include <math.h>
 
 #include <sodium.h>
-#include <omp.h>
 
 #include "go.h"
 #include "record.h"
-#include "feat.h"
+#include "features.h"
+#include "gtree.h"
 #include "sgf.h"
 #include "mcts.h"
 
@@ -141,12 +141,12 @@ int kerplunk_move_features(char *path) {
                 fprintf(stdout, "%u", (move == record.moves[k]) ? 1 : 0);
 
                 // feature 1: octant coordinates
-                uint16_t move_oct = matrix_to_octant(move, state.size);
+                uint16_t move_oct = octant_from_matrix(move, state.size);
                 fprintf(stdout, ",%u,%u", HEIGHT(move_oct)-1, DIAOFF(move_oct));
 
-                // feature 2: radius-4 neighborhood
+                // feature 2: radius-4 L1 neighborhood
                 uint8_t nbhd[41];
-                feat_neighborhood(&state, move, nbhd, 41);
+                feature_neighborhood(&state, move, nbhd, 41);
                 for (size_t j = 0; j < 41; j++) {
                     if (nbhd[j] == GO_COLOR_EMPTY) {
                         fprintf(stdout, ",E");
@@ -160,15 +160,10 @@ int kerplunk_move_features(char *path) {
                 }
 
                 // feature 3: square distance to last few moves
-
                 for (size_t j = 0; j < num_last_moves; j++) {
                     if (last_moves[i]) {
-                        const int row1 = GO_MOVE_ROW(move);
-                        const int col1 = GO_MOVE_COL(move);
-                        const int row0 = GO_MOVE_ROW(last_moves[j]);
-                        const int col0 = GO_MOVE_COL(last_moves[j]);
-
-                        fprintf(stdout, ",%d", (row1-row0)*(row1-row0)+(col1-col0)*(col1-col0));
+                        const int sqdist = metric_l2_squared(move, last_moves[j]);
+                        fprintf(stdout, ",%d", sqdist);
                     }
                     else {
                         fprintf(stdout, ",?");
