@@ -72,6 +72,29 @@ void sgf_dump(struct game_record *record, void *stream);
 
 kerplunk = {}
 
+function kerplunk.go_print(state, ...)
+    local args = {...}
+    local stream
+    if args[0] then
+        stream = args[0]
+    else
+        stream = io.stdout
+    end
+
+    C.go_print(state, stream)
+end
+
+function kerplunk.new_replay(record)
+    local replay = ffi.new('struct game_replay')
+
+    C.replay_start(replay, record)
+    return replay
+end
+
+function kerplunk.replay_step(replay)
+    return C.replay_step(replay)
+end
+
 function kerplunk.sgf_load(stream)
     local record = ffi.new('struct game_record')
     ffi.gc(record, C.game_record_free)

@@ -1,6 +1,6 @@
 OBJECTS := build/main.o build/go.o build/record.o build/gtree.o build/sgf.o build/mcts.o
-OBJECTS += build/features/octant.o build/features/neighbor.o 
-OBJECTS += build/cmd/cat.o build/cmd/kerplunk.o
+OBJECTS += build/features/octant.o build/features/neighbor.o
+OBJECTS += build/cmd/cat.o build/cmd/import_games.o build/cmd/kerplunk.o build/cmd/lsqlite3.o
 
 CFLAGS := -std=c99 -pedantic
 CFLAGS += -Wall -Wextra -Werror
@@ -8,7 +8,7 @@ CFLAGS += -O3 -fomit-frame-pointer
 CFLAGS += -rdynamic
 CFLAGS += -I/usr/include/luajit-2.0/
 
-LIBS := -lm -lluajit-5.1 -lsodium
+LIBS := -lm -lluajit-5.1 -lsodium -lsqlite3
 
 .PHONY: clean
 
@@ -52,7 +52,13 @@ build/features/neighbor.o: src/features/neighbor.c src/features/neighbor.h src/g
 build/cmd/cat.o: src/cmd/cat.lua
 	luajit -b $< $@
 
+build/cmd/import_games.o: src/cmd/import_games.lua
+	luajit -b $< $@
+
 build/cmd/kerplunk.o: src/cmd/kerplunk.lua
+	luajit -b $< $@
+
+build/cmd/lsqlite3.o: src/cmd/lsqlite3.lua
 	luajit -b $< $@
 
 build/main.o: src/main.c src/mcts.h src/go.h

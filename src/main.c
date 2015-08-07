@@ -16,6 +16,7 @@
 
 const char *cmds[] = {
     "cat",
+    "import_games",
     NULL
 };
 
