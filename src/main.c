@@ -17,6 +17,7 @@
 const char *cmds[] = {
     "cat",
     "import_games",
+    "extract_features",
     NULL
 };
 

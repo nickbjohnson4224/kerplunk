@@ -89,11 +89,14 @@ function module.main(sgf_path, db_path)
         end
     end
 
+    local i = 0
     while true do
         local record = kp.sgf_load(file)
         if record == nil then
             break
         end
+
+        print('inserting game', i)
 
         -- create new game
         db:exec "INSERT INTO games DEFAULT VALUES"
@@ -226,6 +229,8 @@ function module.main(sgf_path, db_path)
 
             stmt:finalize()
         end
+
+        i = i + 1
     end
 
     db:exec "END TRANSACTION"

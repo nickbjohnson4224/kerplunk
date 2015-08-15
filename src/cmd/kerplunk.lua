@@ -1,4 +1,5 @@
 local ffi = require('ffi')
+local bit = require('bit')
 local C = ffi.C
 
 ffi.cdef [[
@@ -68,6 +69,10 @@ bool replay_step(struct game_replay *replay);
 bool sgf_load(struct game_record *record, void *stream, bool verbose);
 void sgf_dump(struct game_record *record, void *stream);
 
+// from features/octant.h
+uint16_t octant_from_matrix(uint16_t mat_pos, size_t size);
+uint16_t octant_to_matrix(uint16_t oct_pos, size_t size);
+
 ]]
 
 kerplunk = {}
@@ -108,6 +113,16 @@ end
 
 function kerplunk.sgf_dump(record, stream)
     C.sgf_dump(record, stream)
+end
+
+function kerplunk.octant_from_matrix(row, col, size)
+    local oct = C.octant_from_matrix(bit.bor(bit.lshift(row, 8), col), size)
+    
+    local octant = bit.band(bit.rshift(oct, 8), 0x7)
+    local height = bit.band(bit.rshift(oct, 4), 0xF)
+    local diaoff = bit.band(oct, 0xF)
+
+    return octant, height, diaoff
 end
 
 return kerplunk

@@ -1,6 +1,7 @@
 OBJECTS := build/main.o build/go.o build/record.o build/gtree.o build/sgf.o build/mcts.o
 OBJECTS += build/features/octant.o build/features/neighbor.o
-OBJECTS += build/cmd/cat.o build/cmd/import_games.o build/cmd/kerplunk.o build/cmd/lsqlite3.o
+OBJECTS += build/cmd/cat.o build/cmd/import_games.o build/cmd/extract_features.o
+OBJECTS += build/cmd/kerplunk.o build/cmd/lsqlite3.o
 
 CFLAGS := -std=c99 -pedantic
 CFLAGS += -Wall -Wextra -Werror
@@ -53,6 +54,9 @@ build/cmd/cat.o: src/cmd/cat.lua
 	luajit -b $< $@
 
 build/cmd/import_games.o: src/cmd/import_games.lua
+	luajit -b $< $@
+
+build/cmd/extract_features.o: src/cmd/extract_features.lua
 	luajit -b $< $@
 
 build/cmd/kerplunk.o: src/cmd/kerplunk.lua
